@@ -27,8 +27,10 @@ use crate::hash_types::{BlockHash, FilterHash, TxMerkleNode, FilterHeader};
 use crate::io::{self, Cursor, Read};
 
 use crate::util::endian;
+#[cfg(feature = "secp256k1")]
 use crate::util::psbt;
 use crate::util::bip152::{ShortId, PrefilledTransaction};
+#[cfg(feature = "secp256k1")]
 use crate::util::taproot::TapLeafHash;
 use crate::hashes::hex::ToHex;
 
@@ -43,6 +45,7 @@ pub enum Error {
     /// And I/O error
     Io(io::Error),
     /// PSBT-related error
+    #[cfg(feature = "secp256k1")]
     Psbt(psbt::Error),
     /// Tried to allocate an oversized vector
     OversizedVectorAllocation {
@@ -70,6 +73,7 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Error::Io(ref e) => write_err!(f, "IO error"; e),
+            #[cfg(feature = "secp256k1")]
             Error::Psbt(ref e) => write_err!(f, "PSBT error"; e),
             Error::OversizedVectorAllocation { requested: ref r, max: ref m } => write!(f,
                 "allocation of oversized vector: requested {}, maximum {}", r, m),
@@ -109,6 +113,7 @@ impl From<io::Error> for Error {
 }
 
 #[doc(hidden)]
+#[cfg(feature = "secp256k1")]
 impl From<psbt::Error> for Error {
     fn from(e: psbt::Error) -> Error {
         Error::Psbt(e)
@@ -617,6 +622,7 @@ impl_vec!(TxOut);
 impl_vec!(TxIn);
 impl_vec!(Vec<u8>);
 impl_vec!(u64);
+#[cfg(feature = "secp256k1")]
 impl_vec!(TapLeafHash);
 impl_vec!(VarInt);
 impl_vec!(ShortId);
@@ -811,12 +817,14 @@ impl Decodable for sha256::Hash {
     }
 }
 
+#[cfg(feature = "secp256k1")]
 impl Encodable for TapLeafHash {
     fn consensus_encode<W: io::Write + ?Sized>(&self, w: &mut W) -> Result<usize, io::Error> {
         self.into_inner().consensus_encode(w)
     }
 }
 
+#[cfg(feature = "secp256k1")]
 impl Decodable for TapLeafHash {
     fn consensus_decode<R: io::Read + ?Sized>(r: &mut R) -> Result<Self, Error> {
         Ok(Self::from_inner(<<Self as Hash>::Inner>::consensus_decode(r)?))

@@ -38,8 +38,8 @@
 #![deny(non_camel_case_types)]
 #![deny(non_snake_case)]
 #![deny(unused_mut)]
-#![deny(dead_code)]
-#![deny(unused_imports)]
+#![warn(dead_code)]      // DO NOT MERGE(victor): Reduce dead_code to warn to keep moving.
+#![warn(unused_imports)] // DO NOT MERGE(victor): Reduce unused_imports to warn to keep moving.
 #![deny(missing_docs)]
 #![deny(unused_must_use)]
 
@@ -63,7 +63,9 @@ extern crate alloc;
 // Re-export dependencies we control.
 #[cfg(feature = "bitcoinconsensus")]
 pub use bitcoinconsensus;
-pub use {bech32, bitcoin_hashes as hashes, secp256k1};
+pub use {bech32, bitcoin_hashes as hashes};
+#[cfg(feature = "secp256k1")]
+pub use {secp256k1};
 
 #[cfg(feature = "serde")]
 #[macro_use]
@@ -79,14 +81,18 @@ mod serde_utils;
 
 #[macro_use]
 pub mod network;
+#[cfg(feature = "secp256k1")]
 pub mod address;
+#[cfg(feature = "secp256k1")]
 pub mod bip158;
+#[cfg(feature = "secp256k1")]
 pub mod bip32;
 pub mod blockdata;
 pub mod consensus;
 pub mod error;
 pub mod hash_types;
 pub mod policy;
+#[cfg(feature = "secp256k1")]
 pub mod sign_message;
 pub mod util;
 
@@ -96,6 +102,7 @@ use std::io;
 #[cfg(not(feature = "std"))]
 use core2::io;
 
+#[cfg(feature = "secp256k1")]
 pub use crate::address::{Address, AddressType};
 pub use crate::blockdata::block::{self, Block, BlockHeader, BlockVersion};
 pub use crate::blockdata::locktime::{self, absolute, relative};
@@ -107,11 +114,16 @@ pub use crate::consensus::encode::VarInt;
 pub use crate::hash_types::*;
 pub use crate::network::constants::Network;
 pub use crate::util::amount::{Amount, Denomination, SignedAmount};
+#[cfg(feature = "secp256k1")]
 pub use crate::util::ecdsa::{self, EcdsaSig, EcdsaSigError};
+#[cfg(feature = "secp256k1")]
 pub use crate::util::key::{KeyPair, PrivateKey, PublicKey, XOnlyPublicKey};
 pub use crate::util::merkleblock::MerkleBlock;
+#[cfg(feature = "secp256k1")]
 pub use crate::util::schnorr::{self, SchnorrSig, SchnorrSigError};
-pub use crate::util::{psbt, sighash, Error};
+#[cfg(feature = "secp256k1")]
+pub use crate::util::{psbt, sighash};
+pub use crate::util::{Error};
 
 #[cfg(not(feature = "std"))]
 mod io_extras {

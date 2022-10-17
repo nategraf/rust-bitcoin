@@ -36,6 +36,7 @@ use crate::internal_macros::{impl_consensus_encoding, serde_struct_human_string_
 use crate::parse::impl_parse_str_through_int;
 
 #[cfg(doc)]
+#[cfg(feature = "secp256k1")]
 use crate::sighash::{EcdsaSighashType, SchnorrSighashType};
 
 /// A reference to a transaction output.
@@ -649,6 +650,7 @@ impl Transaction {
     /// # Panics
     ///
     /// If `input_index` is out of bounds (greater than or equal to `self.input.len()`).
+    #[cfg(feature = "secp256k1")]
     #[deprecated(since = "0.30.0", note = "Use SighashCache::legacy_encode_signing_data_to instead")]
     pub fn encode_signing_data_to<Write: io::Write, U: Into<u32>>(
         &self,
@@ -698,6 +700,7 @@ impl Transaction {
     /// # Panics
     ///
     /// If `input_index` is out of bounds (greater than or equal to `self.input.len()`).
+    #[cfg(feature = "secp256k1")]
     #[deprecated(since = "0.30.0", note = "Use SighashCache::legacy_signature_hash instead")]
     pub fn signature_hash(
         &self,

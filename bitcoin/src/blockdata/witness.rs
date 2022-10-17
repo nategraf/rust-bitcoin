@@ -5,10 +5,12 @@
 //! This module contains the [`Witness`] struct and related methods to operate on it
 //!
 
+#[cfg(feature = "secp256k1")]
 use secp256k1::ecdsa;
 
 use crate::consensus::encode::{Error, MAX_VEC_SIZE};
 use crate::consensus::{Decodable, Encodable, WriteExt};
+#[cfg(feature = "secp256k1")]
 use crate::util::sighash::EcdsaSighashType;
 use crate::io::{self, Read, Write};
 use crate::prelude::*;
@@ -217,6 +219,7 @@ impl Witness {
 
     /// Pushes a DER-encoded ECDSA signature with a signature hash type as a new element on the
     /// witness, requires an allocation.
+    #[cfg(feature = "secp256k1")]
     pub fn push_bitcoin_signature(&mut self, signature: &ecdsa::SerializedSignature, hash_type: EcdsaSighashType) {
         // Note that a maximal length ECDSA signature is 72 bytes, plus the sighash type makes 73
         let mut sig = [0; 73];

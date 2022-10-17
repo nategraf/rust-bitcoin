@@ -6,17 +6,23 @@
 //! Functions needed by all parts of the Bitcoin library.
 //!
 
+#[cfg(feature = "secp256k1")]
 pub mod key;
+#[cfg(feature = "secp256k1")]
 pub mod ecdsa;
+#[cfg(feature = "secp256k1")]
 pub mod schnorr;
 pub mod amount;
 pub mod base58;
 pub mod bip152;
 pub mod hash;
 pub mod merkleblock;
+#[cfg(feature = "secp256k1")]
 pub mod psbt;
+#[cfg(feature = "secp256k1")]
 pub mod taproot;
 pub mod uint;
+#[cfg(feature = "secp256k1")]
 pub mod sighash;
 
 pub(crate) mod endian;
@@ -110,14 +116,17 @@ pub(crate) fn read_to_end<D: io::Read>(mut d: D) -> Result<Vec<u8>, io::Error> {
 
 /// The `address` module now lives at the crate root, re-export everything so as not to break the
 /// API, however deprecate the re-exports so folks know to upgrade sooner or later.
+#[cfg(feature = "secp256k1")]
 #[deprecated(since = "0.30.0", note = "Please use crate::address")]
 pub mod address {
     pub use crate::address::*;
 }
 
+#[cfg(feature = "secp256k1")]
 #[deprecated(since = "0.30.0", note = "Please use crate::bip32")]
 pub use crate::bip32;
 
+#[cfg(feature = "secp256k1")]
 #[deprecated(since = "0.30.0", note = "Please use crate::bip158")]
 pub use crate::bip158;
 

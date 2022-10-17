@@ -16,7 +16,7 @@ edition = "2018"
 [features]
 default = [ "std", "secp-recovery" ]
 rand = ["secp256k1/rand-std"]
-serde = ["actual-serde", "bitcoin_hashes/serde", "secp256k1/serde"]
+serde = ["actual-serde", "bitcoin_hashes/serde", "secp256k1?/serde"]
 secp-lowmemory = ["secp256k1/lowmemory"]
 secp-recovery = ["secp256k1/recovery"]
 
@@ -25,8 +25,8 @@ secp-recovery = ["secp256k1/recovery"]
 # The no-std feature doesn't disable std - you need to turn off the std feature for that by disabling default.
 # Instead no-std enables additional features required for this crate to be usable without std.
 # As a result, both can be enabled without conflict.
-std = ["secp256k1/std", "bitcoin_hashes/std", "bech32/std", "bitcoin-internals/std"]
-no-std = ["hashbrown", "core2/alloc", "bitcoin_hashes/alloc", "secp256k1/alloc"]
+std = ["secp256k1?/std", "bitcoin_hashes/std", "bech32/std", "bitcoin-internals/std"]
+no-std = ["hashbrown", "core2/alloc", "bitcoin_hashes/alloc", "secp256k1?/alloc"]
 
 [package.metadata.docs.rs]
 features = [ "std", "secp-recovery", "base64", "rand", "serde", "bitcoinconsensus" ]
@@ -36,7 +36,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 bitcoin-internals = { path = "../internals" }
 bech32 = { version = "0.9.0", default-features = false }
 bitcoin_hashes = { version = "0.11.0", default-features = false }
-secp256k1 = { version = "0.24.0", default-features = false, features = ["bitcoin_hashes"] }
+secp256k1 = { version = "0.24.0", default-features = false, features = ["bitcoin_hashes"], optional = true}
 core2 = { version = "0.3.0", optional = true, default-features = false }
 
 base64 = { version = "0.13.0", optional = true }

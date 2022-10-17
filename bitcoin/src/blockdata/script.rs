@@ -33,10 +33,15 @@ use crate::policy::DUST_RELAY_TX_FEE;
 #[cfg(feature="bitcoinconsensus")] use core::convert::From;
 use crate::OutPoint;
 
+#[cfg(feature = "secp256k1")]
 use crate::util::key::PublicKey;
+#[cfg(feature = "secp256k1")]
 use crate::address::WitnessVersion;
+#[cfg(feature = "secp256k1")]
 use crate::util::taproot::{LeafVersion, TapBranchHash, TapLeafHash};
+#[cfg(feature = "secp256k1")]
 use secp256k1::{Secp256k1, Verification, XOnlyPublicKey};
+#[cfg(feature = "secp256k1")]
 use crate::schnorr::{TapTweak, TweakedPublicKey, UntweakedPublicKey};
 
 /// Bitcoin script.
@@ -360,6 +365,7 @@ impl Script {
     }
 
     /// Generates P2PK-type of scriptPubkey.
+    #[cfg(feature = "secp256k1")]
     pub fn new_p2pk(pubkey: &PublicKey) -> Script {
         Builder::new()
             .push_key(pubkey)
@@ -388,28 +394,33 @@ impl Script {
     }
 
     /// Generates P2WPKH-type of scriptPubkey.
+    #[cfg(feature = "secp256k1")]
     pub fn new_v0_p2wpkh(pubkey_hash: &WPubkeyHash) -> Script {
         Script::new_witness_program(WitnessVersion::V0, &pubkey_hash[..])
     }
 
     /// Generates P2WSH-type of scriptPubkey with a given hash of the redeem script.
+    #[cfg(feature = "secp256k1")]
     pub fn new_v0_p2wsh(script_hash: &WScriptHash) -> Script {
         Script::new_witness_program(WitnessVersion::V0, &script_hash[..])
     }
 
     /// Generates P2TR for script spending path using an internal public key and some optional
     /// script tree merkle root.
+    #[cfg(feature = "secp256k1")]
     pub fn new_v1_p2tr<C: Verification>(secp: &Secp256k1<C>, internal_key: UntweakedPublicKey, merkle_root: Option<TapBranchHash>) -> Script {
         let (output_key, _) = internal_key.tap_tweak(secp, merkle_root);
         Script::new_witness_program(WitnessVersion::V1, &output_key.serialize())
     }
 
     /// Generates P2TR for key spending path for a known [`TweakedPublicKey`].
+    #[cfg(feature = "secp256k1")]
     pub fn new_v1_p2tr_tweaked(output_key: TweakedPublicKey) -> Script {
         Script::new_witness_program(WitnessVersion::V1, &output_key.serialize())
     }
 
     /// Generates P2WSH-type of scriptPubkey with a given hash of the redeem script.
+    #[cfg(feature = "secp256k1")]
     pub fn new_witness_program(version: WitnessVersion, program: &[u8]) -> Script {
         Builder::new()
             .push_opcode(version.into())
@@ -459,6 +470,7 @@ impl Script {
     /// for a P2WPKH output. The `scriptCode` is described in [BIP143].
     ///
     /// [BIP143]: <https://github.com/bitcoin/bips/blob/99701f68a88ce33b2d0838eb84e115cef505b4c2/bip-0143.mediawiki>
+    #[cfg(feature = "secp256k1")]
     pub fn p2wpkh_script_code(&self) -> Option<Script> {
         if !self.is_v0_p2wpkh() {
             return None
@@ -476,6 +488,7 @@ impl Script {
 
     /// Computes the P2WSH output corresponding to this witnessScript (aka the "witness redeem
     /// script").
+    #[cfg(feature = "secp256k1")]
     pub fn to_v0_p2wsh(&self) -> Script {
         Script::new_v0_p2wsh(&self.wscript_hash())
     }
@@ -483,6 +496,7 @@ impl Script {
     /// Computes P2TR output with a given internal key and a single script spending path equal to
     /// the current script, assuming that the script is a Tapscript.
     #[inline]
+    #[cfg(feature = "secp256k1")]
     pub fn to_v1_p2tr<C: Verification>(&self, secp: &Secp256k1<C>, internal_key: UntweakedPublicKey) -> Script {
         let leaf_hash = TapLeafHash::from_script(self, LeafVersion::TapScript);
         let merkle_root = TapBranchHash::from_inner(leaf_hash.into_inner());
@@ -491,6 +505,7 @@ impl Script {
 
     /// Returns witness version of the script, if any, assuming the script is a `scriptPubkey`.
     #[inline]
+    #[cfg(feature = "secp256k1")]
     pub fn witness_version(&self) -> Option<WitnessVersion> {
         self.0.first().and_then(|opcode| WitnessVersion::try_from(opcodes::All::from(*opcode)).ok())
     }
@@ -533,6 +548,7 @@ impl Script {
 
     /// Checks whether a script pubkey is a Segregated Witness (segwit) program.
     #[inline]
+    #[cfg(feature = "secp256k1")]
     pub fn is_witness_program(&self) -> bool {
         // A scriptPubKey (or redeemScript as defined in BIP16/P2SH) that consists of a 1-byte
         // push opcode (for 0 to 16) followed by a data push between 2 and 40 bytes gets a new
@@ -553,6 +569,7 @@ impl Script {
 
     /// Checks whether a script pubkey is a P2WSH output.
     #[inline]
+    #[cfg(feature = "secp256k1")]
     pub fn is_v0_p2wsh(&self) -> bool {
         self.0.len() == 34
             && self.witness_version() == Some(WitnessVersion::V0)
@@ -561,6 +578,7 @@ impl Script {
 
     /// Checks whether a script pubkey is a P2WPKH output.
     #[inline]
+    #[cfg(feature = "secp256k1")]
     pub fn is_v0_p2wpkh(&self) -> bool {
         self.0.len() == 22
             && self.witness_version() == Some(WitnessVersion::V0)
@@ -569,6 +587,7 @@ impl Script {
 
     /// Checks whether a script pubkey is a P2TR output.
     #[inline]
+    #[cfg(feature = "secp256k1")]
     pub fn is_v1_p2tr(&self) -> bool {
         self.0.len() == 34
             && self.witness_version() == Some(WitnessVersion::V1)
@@ -600,6 +619,7 @@ impl Script {
 
     /// Returns the minimum value an output with this script should have in order to be
     /// broadcastable on today's Bitcoin network.
+    #[cfg(feature = "secp256k1")]
     pub fn dust_value(&self) -> crate::Amount {
         // This must never be lower than Bitcoin Core's GetDustThreshold() (as of v0.21) as it may
         // otherwise allow users to create transactions which likely can never be broadcast/confirmed.
@@ -967,6 +987,7 @@ impl Builder {
     }
 
     /// Adds instructions to push a public key onto the stack.
+    #[cfg(feature = "secp256k1")]
     pub fn push_key(self, key: &PublicKey) -> Builder {
         if key.compressed {
             self.push_slice(&key.inner.serialize()[..])
@@ -976,6 +997,7 @@ impl Builder {
     }
 
     /// Adds instructions to push an XOnly public key onto the stack.
+    #[cfg(feature = "secp256k1")]
     pub fn push_x_only_key(self, x_only_key: &XOnlyPublicKey) -> Builder {
         self.push_slice(&x_only_key.serialize())
     }
