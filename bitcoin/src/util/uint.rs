@@ -163,6 +163,11 @@ macro_rules! construct_uint {
                     }
                 }
             }
+
+            #[inline(never)]
+            fn add_assign_no_opt(a: &mut u64, b: u64) {
+                *a = *a + b;
+            }
         }
 
         impl PartialOrd for $name {
@@ -362,11 +367,11 @@ macro_rules! construct_uint {
                 for i in 0..$n_words {
                     // Shift
                     if bit_shift < 64 && i + word_shift < $n_words {
-                        ret[i + word_shift] += original[i] << bit_shift;
+                        Self::add_assign_no_opt(&mut ret[i + word_shift], original[i] << bit_shift);
                     }
                     // Carry
                     if bit_shift > 0 && i + word_shift + 1 < $n_words {
-                        ret[i + word_shift + 1] += original[i] >> (64 - bit_shift);
+                        Self::add_assign_no_opt(&mut ret[i + word_shift + 1], original[i] >> (64 - bit_shift));
                     }
                 }
                 $name(ret)
