@@ -38,8 +38,8 @@
 #![deny(non_camel_case_types)]
 #![deny(non_snake_case)]
 #![deny(unused_mut)]
-#![warn(dead_code)]      // DO NOT MERGE(victor): Reduce dead_code to warn to keep moving.
-#![warn(unused_imports)] // DO NOT MERGE(victor): Reduce unused_imports to warn to keep moving.
+#![allow(dead_code)]      // DO NOT MERGE(victor): Reduce dead_code to warn to keep moving.
+#![allow(unused_imports)] // DO NOT MERGE(victor): Reduce unused_imports to warn to keep moving.
 #![deny(missing_docs)]
 #![deny(unused_must_use)]
 

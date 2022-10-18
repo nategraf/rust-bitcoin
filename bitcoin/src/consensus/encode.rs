@@ -95,6 +95,7 @@ impl std::error::Error for Error {
 
         match self {
             Io(e) => Some(e),
+            #[cfg(feature = "secp256k1")]
             Psbt(e) => Some(e),
             OversizedVectorAllocation { .. }
             | InvalidChecksum { .. }

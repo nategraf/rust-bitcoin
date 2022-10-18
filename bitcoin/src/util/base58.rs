@@ -76,6 +76,7 @@ impl std::error::Error for Error {
             | InvalidExtendedKeyVersion(_)
             | InvalidAddressVersion(_)
             | TooShort(_) => None,
+            #[cfg(feature = "secp256k1")]
             Secp256k1(e) => Some(e),
             Hex(e) => Some(e),
         }
